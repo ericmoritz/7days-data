@@ -13,17 +13,19 @@
 
 
 :rawMeat
-  :fullness 10 ;
-  :hydration 0;
-  :health 2;
-  :wellness 0;
-  a :Food .
-  
-:egg
-  :fullness 2 ;
+  :fullness 0 ;
   :hydration 0;
   :health 0;
   :wellness 0;
+  rdfs:comment "Stats are set to zero because you shouldn't eat raw meat" ;
+  a :Food .
+  
+:egg
+  :fullness 0 ;
+  :hydration 0;
+  :health 0;
+  :wellness 0;
+  rdfs:comment "Stats are set to zero because you shouldn't eat raw eggs" ;  
   a :Food .
   
 :blueBerry
