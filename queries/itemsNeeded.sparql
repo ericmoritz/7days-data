@@ -14,7 +14,7 @@ SELECT
    ?block ?rItem (SUM(?itemCount) AS ?itemCountTotal)
 
 WHERE {
- # This is the starting block that will needed to be crafted
+ # These are the items that are needed to be crafted
  {
     VALUES ?block { items:cobblestoneFrameBlock items:ironBars }
   
@@ -22,9 +22,9 @@ WHERE {
           s:count ?itemCount ;
           s:Item ?rItem
     ] .  
-  }    
+  } 
   UNION
-  # This to the ending block that you need to upgrade to
+  # These are the items we need to upgrade to
   {
     VALUES ?block { items:cobblestoneBlock }
     
