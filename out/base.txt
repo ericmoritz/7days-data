@@ -1,0 +1,10 @@
+--------------------------------------------------------------------
+| block                       | rItem             | itemCountTotal |
+====================================================================
+| items:cobblestoneBlock      | items:clayLump    | 12             |
+| items:cobblestoneBlock      | items:rockSmall   | 12             |
+| items:cobblestoneFrameBlock | items:yuccaFibers | 1              |
+| items:cobblestoneFrameBlock | items:wood        | 5              |
+| items:ironBars              | items:unit_iron   | 20             |
+| items:ironBars              | items:unit_clay   | 4              |
+--------------------------------------------------------------------

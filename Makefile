@@ -9,7 +9,9 @@ data:
 out:
 	mkdir -p out
 	sparql --data=data/all.ttl --query=queries/bestFood.sparql > out/bestFood.txt
+	sparql --data=data/all.ttl --query=queries/itemsNeeded.sparql > out/base.txt
 
 clean:
 	rm -rf data/
 	rm -rf out/
+

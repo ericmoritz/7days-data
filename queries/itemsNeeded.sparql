@@ -1,0 +1,51 @@
+###
+# This query calculated the items needed to make and upgrade to a certain item
+###
+
+PREFIX blocks: <http://7daystodie.com/#blocks/>
+PREFIX items: <http://7daystodie.com/#items/>
+PREFIX materials: <http://7daystodie.com/#materials/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX recipes: <http://7daystodie.com/#recipes/>
+PREFIX s: <http://7daystodie.com/#>
+
+SELECT
+   ?block ?rItem (SUM(?itemCount) AS ?itemCountTotal)
+
+WHERE {
+ # This is the starting block that will needed to be crafted
+ {
+    VALUES ?block { items:cobblestoneFrameBlock items:ironBars }
+  
+    ?block recipes:recipe/recipes:ingredient [
+          s:count ?itemCount ;
+          s:Item ?rItem
+    ] .  
+  }    
+  UNION
+  # This to the ending block that you need to upgrade to
+  {
+    VALUES ?block { items:cobblestoneBlock }
+    
+    # Get all the items that upgrade to a cobblestoneBlock
+    ?upgradesFrom (blocks:UpgradeBlock/blocks:ToBlock)+ ?block .
+    
+    # Get the items needed to upgrade the blocks
+    ?upgradesFrom blocks:UpgradeBlock [
+       blocks:ItemCount ?count ;
+       s:Item ?item
+    ] .
+    
+    # Get The ingredients to make the items needed to upgrade the blocks
+    ?item recipes:recipe/recipes:ingredient [
+          s:count ?rCount ;
+          s:Item ?rItem
+    ] .
+    
+    # Calculate the total number of items needed to upgrade to the final block
+    BIND (?count * ?rCount AS ?itemCount)  
+  }
+}
+GROUP BY ?block ?rItem
+ORDER BY ?block

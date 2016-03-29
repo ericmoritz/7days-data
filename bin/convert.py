@@ -96,7 +96,7 @@ def cast_value(source, name, value):
     elif name == 'Item':
         return tag_uri(ITEMS_SOURCE, value)
     elif name in {'ToBlock', 'UpgradeRated.ToBlock'}:
-        return tag_uri(BLOCKS_SOURCE, value)
+        return tag_uri(ITEMS_SOURCE, value)
     elif name == 'Extends':
         # The Extends property uses the same source
         return tag_uri(source, value)
@@ -142,8 +142,8 @@ def _prop_to_triples(source, uri, prop):
                 yield triple
 
 
-def prop_to_triples(source, parent, prop):
-    uri_label = el_uri_label(source, parent)
+def prop_to_triples(parent_source, source, parent, prop):
+    uri_label = el_uri_label(parent_source, parent)
     if uri_label:
         uri, label = uri_label
         for triple in parent_label(uri, source, label):
@@ -155,10 +155,10 @@ def prop_to_triples(source, parent, prop):
             yield triple
 
 
-def etree_to_triples(source, etree):
+def etree_to_triples(parent_source, source, etree):
     for parent in etree.iterfind('./*/property/..'):
         for prop in parent.iterfind('property'):
-            for triple in prop_to_triples(source, parent, prop):
+            for triple in prop_to_triples(parent_source, source, parent, prop):
                 yield triple
 
 
@@ -203,13 +203,13 @@ def main():
     g.bind('s', SEVEN_NS)
     
     sources = [
-        (BLOCKS_SOURCE, "Config/blocks.xml"),
-        (MATERIALS_SOURCE, "Config/materials.xml"),
-        (ITEMS_SOURCE, "Config/items.xml"),        
+        (BLOCKS_SOURCE, ITEMS_SOURCE, "Config/blocks.xml"),
+        (ITEMS_SOURCE, ITEMS_SOURCE, "Config/items.xml"),        
+        (MATERIALS_SOURCE, MATERIALS_SOURCE, "Config/materials.xml"),
     ]
-    for (source, filename) in sources:
+    for (source, parent_source, filename) in sources:
         g.bind(source.key, source.ns)
-        for t in etree_to_triples(source, etree.parse(filename)):
+        for t in etree_to_triples(parent_source, source, etree.parse(filename)):
             g.add(t)
 
     g.bind('recipes', RECIPES_SOURCE.ns)
