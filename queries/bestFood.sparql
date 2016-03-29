@@ -1,0 +1,59 @@
+PREFIX blocks: <http://7daystodie.com/#blocks/>
+PREFIX items: <http://7daystodie.com/#items/>
+PREFIX materials: <http://7daystodie.com/#materials/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX recipes: <http://7daystodie.com/#recipes/>
+PREFIX s: <http://7daystodie.com/#>
+
+SELECT
+  ?label
+  (COALESCE(?Gain_water,0) as ?hydration)
+  (COALESCE(?Gain_food,0) as ?fullness)
+  (COALESCE(?Gain_health,0) as ?health)
+  (COALESCE(?Gain_wellness,0) as ?wellness)
+  
+  (SUM(COALESCE(?Gain_water_cost, 0)) AS ?hydrationCost)
+  (SUM(COALESCE(?Gain_food_cost,0)) AS ?fullnessCost)
+  (SUM(COALESCE(?Gain_health_cost,0)) AS ?healthCost)
+  (SUM(COALESCE(?Gain_wellness_cost,0)) AS ?wellnessCost)
+
+  (?hydration - ?hydrationCost AS ?netHydration)
+  (?fullness - ?hydrationCost AS ?netFullness)
+  (?health - ?healthCost AS ?netHealth)
+  (?wellness - ?wellnessCost AS ?netWellness)
+
+  (?netFullness + ?netHydration + ?netHealth + ?netWellness AS ?cost)
+
+WHERE {
+  ?id rdfs:label ?label ;
+      items:Action1 ?action1 .
+
+  ?action1 items:Class 'Eat' .
+
+  ?id recipes:recipe [
+    recipes:ingredient [
+      s:Item ?rItem
+    ]
+  ] .
+
+  ?rItem items:Action1 ?rAction1 .
+  ?rAction1 items:Class 'Eat' .
+
+  OPTIONAL { ?action1 items:Buff ?buff }
+  OPTIONAL { ?action1 items:Gain_water ?Gain_water }
+  OPTIONAL { ?action1 items:Gain_food ?Gain_food } 
+  OPTIONAL { ?action1 items:Gain_health ?Gain_health }
+  OPTIONAL { ?action1 items:Gain_wellness ?Gain_wellness }
+
+  OPTIONAL { ?rAction1 items:Buff ?rBuff }
+  OPTIONAL { ?rAction1 items:Gain_water ?Gain_water_cost }
+  OPTIONAL { ?rAction1 items:Gain_food ?Gain_food_cost } 
+  OPTIONAL { ?rAction1 items:Gain_health ?Gain_health_cost }
+  OPTIONAL { ?rAction1 items:Gain_wellness ?Gain_wellness_cost }     
+  
+  FILTER (lang(?label) = 'en')
+#  FILTER (!bound(?rBuff) || (?rBuff != 'foodPoisoning' && ?rBuff != 'dysentery'))
+}
+GROUP BY   ?label ?buff ?Gain_water ?Gain_food ?Gain_health ?Gain_wellness
+ORDER BY DESC(?cost) ?label
